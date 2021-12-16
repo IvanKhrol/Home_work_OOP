@@ -35,7 +35,7 @@ int main()
         sf::Event event;
         while(window.pollEvent(event)) 
         {
-            if(event.type == sf::Event::Closed) 
+            if(event.type == sf::Event::Closed || (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))) 
             {
                 window.close();
             }
@@ -88,6 +88,19 @@ int main()
             if(event.type == sf::Event::MouseButtonReleased) 
             {
                 isSelecting = false;
+            }
+            // Random color
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+            {
+                int  i = 0;
+                for(Ball& b : balls)
+                {
+                    ++i;
+                    if(b.isChoosen)
+                    {
+                        b.setColor({(unsigned char)(rand() % 256), (unsigned char)(rand() % 256), (unsigned char)(rand() % 256)});
+                    }
+                }
             }
         }
 

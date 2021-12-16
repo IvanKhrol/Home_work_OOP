@@ -20,7 +20,7 @@ void drawLine(sf::RenderWindow& window, sf::Vector2f start, sf::Vector2f finish,
 }
 //-----------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------
-Ball::Ball(sf::Vector2f position, float radius, sf::Color color = sf::Color::White) : position_(position), radius_(radius), color_(color)
+Ball::Ball(sf::Vector2f position, float radius) : position_(position), radius_(radius)
 {
         this->isChoosen = false;
 }
@@ -30,7 +30,7 @@ void Ball::draw(sf::RenderWindow& window) const
 {
     // Тут рисуем белый кружочек
     sf::CircleShape circle(this->radius_);
-    circle.setFillColor(sf::Color::White);
+    circle.setFillColor(color_);
     circle.setOrigin({this->radius_, this->radius_});
     circle.setPosition(this->position_);
     window.draw(circle);
@@ -64,4 +64,16 @@ sf::Vector2f Ball::getPosition() const
 float Ball::getRadius() const
 {
     return this->radius_;
+}
+//-----------------------------------------------------------------------------------------------------------
+sf::Color Ball::getColor() const
+{
+    return this->color_;
+}
+//-----------------------------------------------------------------------------------------------------------
+//												SET														
+//-----------------------------------------------------------------------------------------------------------
+void Ball::setColor(const sf::Color color)
+{
+    this->color_ = color;
 }

@@ -18,11 +18,75 @@ void drawLine(sf::RenderWindow& window, sf::Vector2f start, sf::Vector2f finish,
     sf::Vertex line_vertices[2] = {sf::Vertex(start, color), sf::Vertex(finish, color)};
     window.draw(line_vertices, 2, sf::Lines);
 }
+//----------------------------------------------------------------------------------------------------------
+bool isBelongs(sf::Vector2f start, sf::Vector2f end, sf::Vector2f point)
+{
+    Point_t  left_top;
+    Point_t right_bot;
+    if((start.y + end.y > start.y))
+    {
+        left_top.y_ = start.y;
+        right_bot.y_ = start.y + end.y;
+    }else
+    {
+        right_bot.y_ = start.y;
+        left_top.y_  = start.y + end.y;
+    }
+
+    if((start.x + end.x > start.x))
+    {
+        left_top.x_ = start.x;
+        right_bot.x_ = start.x + end.x;
+    }else
+    {
+        right_bot.x_ = start.x;
+        left_top.x_  = start.x + end.x;
+    }
+    // left_top.draw();
+    // right_bot.draw();
+    if((-(point.x - left_top.x_)     * (right_bot.y_ - left_top.y_)  < 0) &&
+       ((right_bot.x_ - left_top.x_) * (point.y - left_top.y_)       > 0) && 
+       (-(point.x - right_bot.x_)    * (right_bot.y_ - left_top.y_)  > 0) &&
+       ((left_top.x_ - right_bot.x_) * (point.y - right_bot.y_)      > 0))
+            return true;
+
+    return false;
+}
+
+//-----------------------------------------------------------------------------------------------------------
+//												POINT														
+//-----------------------------------------------------------------------------------------------------------
+Point_t::Point_t() : x_(0), y_(0) {}
+//-----------------------------------------------------------------------------------------------------------
+Point_t::Point_t(float x , float y) : x_(x), y_(y) {}
+//-----------------------------------------------------------------------------------------------------------
+Point_t::~Point_t() {}
+//-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------
+void Point_t::draw()
+{
+    std::cout << "(" << x_ << ", " << y_ << ")\n";
+}
+
+//-----------------------------------------------------------------------------------------------------------
+//												BALL														
+//-----------------------------------------------------------------------------------------------------------
+
 //-----------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------
 Ball::Ball(sf::Vector2f position, float radius) : position_(position), radius_(radius)
 {
         this->isChoosen = false;
+}
+//-----------------------------------------------------------------------------------------------------------
+Ball::Ball(sf::Vector2f position, float radius, sf::Color color) : position_(position), radius_(radius), color_(color)
+{
+        this->isChoosen = false;
+}
+//-----------------------------------------------------------------------------------------------------------
+Ball::~Ball()
+{
+
 }
 //-----------------------------------------------------------------------------------------------------------
 // Метод, который рисует шарик на холстек окна window
@@ -76,4 +140,15 @@ sf::Color Ball::getColor() const
 void Ball::setColor(const sf::Color color)
 {
     this->color_ = color;
+}
+//-----------------------------------------------------------------------------------------------------------
+void Ball::setPosition(const sf::Vector2f new_position)
+{
+    this->position_.x = new_position.x;
+    this->position_.y = new_position.y;    
+}
+//-----------------------------------------------------------------------------------------------------------
+void Ball::setRadius(const float new_radius)
+{
+    this->radius_ = new_radius;
 }

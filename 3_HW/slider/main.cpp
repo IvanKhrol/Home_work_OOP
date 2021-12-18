@@ -15,7 +15,6 @@ int main()
     sf::RenderWindow window(sf::VideoMode(800, 600), "Slider!", sf::Style::Default, settings);
     window.setFramerateLimit(60);
 //-----------------------------------------------------------------------------------------------------------
-    Slider slider; // наш slider
 //-----------------------------------------------------------------------------------------------------------
 //                                              ПОДКЛЮЧАЕМ ШРИФТ
 //-----------------------------------------------------------------------------------------------------------
@@ -25,17 +24,23 @@ int main()
         std::cout << "Can't load font" << std::endl;
     }
 //-----------------------------------------------------------------------------------------------------------
-//												TEKCT														
+//												SLIDERS														
 //-----------------------------------------------------------------------------------------------------------
-    sf::Text text;
-    text.setFont(font);
-    text.setCharacterSize(slider.slide_rect.getSize().y * 0.6);
-    text.setFillColor(sf::Color::White);
-    text.setString(std::to_string(slider.getCur()));
-    text.setPosition({slider.main_rect.getSize().x * 1.1 + slider.main_rect.getPosition().x, slider.slide_rect.getPosition().y});
+    Slider slider_size({400, 400}, {200, 8}, font, 0, 100); // slider меняющий размер шарика
+    Slider slider_color_r({400, 450}, {200, 8}, font, 0, 255); // slider меняющий красную компоненту цвета
+    Slider slider_color_g({400, 500}, {200, 8}, font, 0, 255); // slider меняющий зелёную компоненту цвета
+    Slider slider_color_b({400, 550}, {200, 8}, font, 0, 255); // slider меняющий голубую компоненту цвета
 //-----------------------------------------------------------------------------------------------------------
+//												BALL														
 //-----------------------------------------------------------------------------------------------------------
-
+    sf::CircleShape circle;
+    sf::Color ball_color = sf::Color::White;
+    circle.setFillColor(ball_color);
+    circle.setRadius(50);
+    circle.setOrigin({50, 50});
+    circle.setPosition({400, 200});
+    // std::cout << circle.getOrigin().x << " " << circle.getOrigin().y << std::endl; // Отладочный принт
+    
 
 
     bool isMoving = false; // Флаг на переджвижение ползунка
@@ -59,16 +64,19 @@ int main()
             if(event.type == sf::Event::MouseMoved) 
             {
                 sf::Vector2f mousePosition = window.mapPixelToCoords({event.mouseMove.x, event.mouseMove.y});
-                if(isMoving)
-                {
-                    if(mousePosition.x < slider.main_rect.getPosition().x + slider.main_rect.getSize().x  &&
-                       mousePosition.x > slider.main_rect.getPosition().x - slider.slide_rect.getSize().x / 2)
-                        {
-                            slider.slide_rect.setPosition({mousePosition.x, slider.slide_rect.getPosition().y});
-                            slider.setCur(slider.slide_rect.getPosition());
-                            text.setString(std::to_string(slider.getCur()));
-                        }
-                }                
+                // std::cout << mousePosition.x << " " << mousePosition.y << std::endl; // Отладочный принт
+                // Проверяем передвигли ли ползунок, и если да, то какой
+                if(slider_size.isMoving)
+                    slider_size.move(mousePosition);
+
+                if(slider_color_r.isMoving)
+                    slider_color_r.move(mousePosition);
+
+                if(slider_color_g.isMoving)
+                    slider_color_g.move(mousePosition);    
+
+                if(slider_color_b.isMoving)
+                    slider_color_b.move(mousePosition);                     
             }
             
             // Проверка на нажатие мыши
@@ -76,37 +84,36 @@ int main()
             {
                 sf::Vector2f mousePosition = window.mapPixelToCoords({event.mouseButton.x, event.mouseButton.y});
 
-                // Проверяем куда нажато
-                if(isBelongs(slider.slide_rect.getPosition(), slider.slide_rect.getSize(), mousePosition))
-                {
-                    isMoving = true;
-                }
-                
-                if(isBelongs(slider.main_rect.getPosition(), slider.main_rect.getSize(), mousePosition) && !isMoving)
-                {
-                    slider.slide_rect.setPosition({mousePosition.x, slider.slide_rect.getPosition().y});
-                    slider.setCur(slider.slide_rect.getPosition());
-                    text.setString(std::to_string(slider.getCur()));
-
-                }
+                slider_size.pressed(mousePosition);
+                slider_color_r.pressed(mousePosition);
+                slider_color_g.pressed(mousePosition);
+                slider_color_b.pressed(mousePosition);
             }
 
             // При отжатии кнопки мышки
             if(event.type == sf::Event::MouseButtonReleased)
             {
-                isMoving = false;
+                slider_size.isMoving = false;
+                slider_color_r.isMoving = false;
+                slider_color_g.isMoving = false;
+                slider_color_b.isMoving = false;
             }
-        }
+        } 
 
-
+        ball_color = {(sf::Uint8)slider_color_r.getCur(), (sf::Uint8)slider_color_g.getCur(), (sf::Uint8)slider_color_b.getCur()};
+        circle.setFillColor(ball_color);
+        circle.setRadius(slider_size.getCur());
+        circle.setOrigin(circle.getRadius(), circle.getRadius());
 
         // Отрисовка всех объектов
         window.clear(sf::Color::Black);
         
-        // drawLine(window, {100, 100}, {300, 100}, sf::Color::Green);
-        window.draw(slider.main_rect);
-        window.draw(slider.slide_rect);
-        window.draw(text);
+        slider_size.draw(window);
+        slider_color_r.draw(window);
+        slider_color_g.draw(window);
+        slider_color_b.draw(window);
+
+        window.draw(circle);
         window.display();
     }
 

@@ -59,11 +59,6 @@ bool isBelongs(sf::Vector2f start_rect, sf::Vector2f size_rect, sf::Vector2f poi
     return false;
 }
 //-----------------------------------------------------------------------------------------------------------
-bool isBelongs(sf::RectangleShape& rect, sf::Vector2f point)
-{
-    return(isBelongs(rect.getPosition(), rect.getSize(), point));
-}
-//-----------------------------------------------------------------------------------------------------------
 //											CLASS POINT														
 //-----------------------------------------------------------------------------------------------------------
 // Конструктор по умолчанию
@@ -83,27 +78,95 @@ void Point_t::draw()
 //												CLASS SLIDER														
 //-----------------------------------------------------------------------------------------------------------  
 // Конструктор по умолчанию
-Slider::Slider() : min_(0), max_(100)
+Slider::Slider(sf::Font& font) : min_(0), max_(100)
 {
     createRect(main_rect,  {200, 5}, {400, 300}, {200, 200, 200});
     createRect(slide_rect, {15, 40}, {400, 300}, {200, 200, 200});
+    this->text_.setFont(font);
+    this->text_.setCharacterSize(this->slide_rect.getSize().y * 0.6);
+    this->text_.setFillColor(sf::Color::White);
+    this->text_.setString(std::to_string(this->cur_));
+    this->text_.setPosition({this->main_rect.getSize().x * 1.1f + this->main_rect.getPosition().x, this->slide_rect.getPosition().y});
 }
 //-----------------------------------------------------------------------------------------------------------
 // Конструктор с оновными параметрами
-Slider::Slider(sf::Vector2f position, sf::Vector2f main_size, long long int min = 0, long long int max = 100) : min_(min), max_(max)
+Slider::Slider(sf::Vector2f position, sf::Vector2f main_size, sf::Font& font, long long int min = 0, long long int max = 100) 
+                : min_(min), max_(max)
 {
     createRect(main_rect,  main_size, position, {200, 200, 200});
     createRect(slide_rect, {main_size.y * 2, main_size.x / 6}, position, {200, 200, 200});
+    this->text_.setFont(font);
+    this->text_.setCharacterSize(this->slide_rect.getSize().y * 0.6);
+    this->text_.setFillColor(sf::Color::White);
+    this->text_.setString(std::to_string(this->cur_));
+    this->text_.setPosition({this->main_rect.getSize().x * 1.1f + this->main_rect.getPosition().x, this->slide_rect.getPosition().y});
 }
 
 //-----------------------------------------------------------------------------------------------------------
 Slider::~Slider() {};
 //-----------------------------------------------------------------------------------------------------------
+//												DRAW														
+//-----------------------------------------------------------------------------------------------------------
+void Slider::draw(sf::RenderWindow& window) const
+{
+    window.draw(this->main_rect);
+    window.draw(this->slide_rect);
+    window.draw(this->text_);
+}
+//-----------------------------------------------------------------------------------------------------------
+//												SET NEW POSITION FOR SLIDER														
+//-----------------------------------------------------------------------------------------------------------
+void Slider::chang_slider_pos(const sf::Vector2f mouse_position)
+{
+    float left  = this->main_rect.getPosition().x;
+    float right = left + this->main_rect.getSize().x;
+
+    if(mouse_position.x > right)
+        this->slide_rect.setPosition({right, this->slide_rect.getPosition().y});
+    else if(mouse_position.x < left)
+        this->slide_rect.setPosition({left - this->slide_rect.getSize().x, this->slide_rect.getPosition().y});
+    else
+        this->slide_rect.setPosition({mouse_position.x, this->slide_rect.getPosition().y});
+
+    this->setCur(this->slide_rect.getPosition());
+    this->text_.setString(std::to_string(this->getCur()));
+}
+//-----------------------------------------------------------------------------------------------------------
+//											IF SLIDER WAS PRESSED														
+//-----------------------------------------------------------------------------------------------------------
+void Slider::pressed(const sf::Vector2f mouse_position)
+{
+    // Проверяем куда нажато
+    if(isBelongs(this->slide_rect.getPosition(), this->slide_rect.getSize(), mouse_position))
+    {
+        this->isMoving = true;
+    }
+    
+    if(isBelongs(this->main_rect.getPosition(), this->main_rect.getSize(), mouse_position) && !this->isMoving)
+    {
+        this->chang_slider_pos(mouse_position);
+    }
+}
+//-----------------------------------------------------------------------------------------------------------
+//											IF SLIDER WAS MOVED														
+//-----------------------------------------------------------------------------------------------------------
+void Slider::move(const sf::Vector2f mouse_position)
+{
+    int center = this->slide_rect.getPosition().x + this->slide_rect.getSize().x / 2;
+
+    // if(center < this->main_rect.getPosition().x + this->main_rect.getSize().x  &&
+    //    center > this->main_rect.getPosition().x )
+    // {
+        this->chang_slider_pos(mouse_position);
+    // }
+}
+//-----------------------------------------------------------------------------------------------------------
 //												SET														
 //-----------------------------------------------------------------------------------------------------------
-void Slider::setCur(sf::Vector2f new_position)
+void Slider::setCur(const sf::Vector2f mouse_position)
 {
-    float k = (new_position.x - this->main_rect.getPosition().x) / this->main_rect.getSize().x;
+    // float k = (mouse_position.x - this->main_rect.getPosition().x) / this->main_rect.getSize().x;
+    float k = ((this->slide_rect.getPosition().x + this->slide_rect.getSize().x / 2)- this->main_rect.getPosition().x) / this->main_rect.getSize().x;
     this->cur_ = k * this->max_ + 1;
     if(this->cur_ > this->max_)
         this->cur_ = this->max_;
@@ -113,17 +176,17 @@ void Slider::setCur(sf::Vector2f new_position)
 //-----------------------------------------------------------------------------------------------------------
 //												GET														
 //-----------------------------------------------------------------------------------------------------------
-long long int Slider::getCur()
+long long int Slider::getCur() const
 {
     return this->cur_;
 }
 //-----------------------------------------------------------------------------------------------------------
-long long int Slider::getMin()
+long long int Slider::getMin() const
 {
     return this->min_;
 }
 //-----------------------------------------------------------------------------------------------------------
-long long int Slider::getMax()
+long long int Slider::getMax() const
 {
     return this->max_;
 }

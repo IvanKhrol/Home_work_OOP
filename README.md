@@ -10,5 +10,6 @@
 ## Homework assignments 2 semester:
 ```
 1) My Unique_ptr:   at ./5_HW/
-1) My Skill_tree:   at ./6_HW/
+2) My Shared_ptr:   at ./5_1_HW/
+3) My Skill_tree:   at ./6_HW/
 ```

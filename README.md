@@ -12,4 +12,5 @@
 1) My Unique_ptr:   at ./5_HW/
 2) My Shared_ptr:   at ./5_1_HW/
 3) My Skill_tree:   at ./6_HW/
+4) My Platformer:   at ./7_HW/
 ```
